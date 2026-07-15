@@ -1,22 +1,53 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: RAKT KAVACH - National Digital Blood Grid API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User management
+  - name: donors
+    description: Donor operations
+  - name: patients
+    description: Patient operations
+  - name: hospitals
+    description: Hospital operations
+  - name: blood-banks
+    description: Blood bank operations
+  - name: laboratories
+    description: Laboratory operations
+  - name: ambulances
+    description: Ambulance operations
+  - name: volunteers
+    description: Volunteer operations
+  - name: inventory
+    description: Blood inventory management
+  - name: emergency
+    description: Emergency SOS operations
+  - name: wallet
+    description: Digital blood wallet
+  - name: notifications
+    description: Notification system
+  - name: analytics
+    description: Analytics and reporting
+  - name: dashboard
+    description: Dashboard data
+  - name: blood-units
+    description: Blood unit lifecycle tracking
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +55,3386 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenInput"
+      responses:
+        "200":
+          description: Refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  # USERS
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List users
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # DONORS
+  /donors:
+    get:
+      operationId: listDonors
+      tags: [donors]
+      summary: List donors
+      parameters:
+        - name: bloodGroup
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: eligible
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Donors list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorListResponse"
+    post:
+      operationId: createDonor
+      tags: [donors]
+      summary: Create donor profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DonorInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+
+  /donors/{id}:
+    get:
+      operationId: getDonor
+      tags: [donors]
+      summary: Get donor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Donor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+    patch:
+      operationId: updateDonor
+      tags: [donors]
+      summary: Update donor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DonorUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Donor"
+
+  /donors/{id}/donations:
+    get:
+      operationId: getDonorDonations
+      tags: [donors]
+      summary: Get donor donation history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Donation history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationHistoryResponse"
+
+  /donors/{id}/eligibility:
+    get:
+      operationId: checkDonorEligibility
+      tags: [donors]
+      summary: Check donor eligibility
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Eligibility status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EligibilityStatus"
+
+  /donors/nearby:
+    get:
+      operationId: getNearbyDonors
+      tags: [donors]
+      summary: Get nearby donors
+      parameters:
+        - name: bloodGroup
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: lat
+          in: query
+          schema:
+            type: number
+        - name: lng
+          in: query
+          schema:
+            type: number
+        - name: radius
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Nearby donors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorListResponse"
+
+  # PATIENTS
+  /patients:
+    get:
+      operationId: listPatients
+      tags: [patients]
+      summary: List patients
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patients list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientListResponse"
+    post:
+      operationId: createPatient
+      tags: [patients]
+      summary: Create patient profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /patients/{id}:
+    get:
+      operationId: getPatient
+      tags: [patients]
+      summary: Get patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+    patch:
+      operationId: updatePatient
+      tags: [patients]
+      summary: Update patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /patients/{id}/requests:
+    get:
+      operationId: getPatientRequests
+      tags: [patients]
+      summary: Get patient blood requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestListResponse"
+
+  # HOSPITALS
+  /hospitals:
+    get:
+      operationId: listHospitals
+      tags: [hospitals]
+      summary: List hospitals
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Hospitals list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HospitalListResponse"
+    post:
+      operationId: createHospital
+      tags: [hospitals]
+      summary: Create hospital
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HospitalInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hospital"
+
+  /hospitals/{id}:
+    get:
+      operationId: getHospital
+      tags: [hospitals]
+      summary: Get hospital
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Hospital
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hospital"
+
+  /hospitals/{id}/inventory:
+    get:
+      operationId: getHospitalInventory
+      tags: [hospitals]
+      summary: Get hospital blood inventory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inventory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryListResponse"
+
+  /hospitals/{id}/requests:
+    get:
+      operationId: getHospitalRequests
+      tags: [hospitals]
+      summary: Get hospital blood requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestListResponse"
+
+  # BLOOD BANKS
+  /blood-banks:
+    get:
+      operationId: listBloodBanks
+      tags: [blood-banks]
+      summary: List blood banks
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: bloodGroup
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood banks list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodBankListResponse"
+    post:
+      operationId: createBloodBank
+      tags: [blood-banks]
+      summary: Create blood bank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BloodBankInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodBank"
+
+  /blood-banks/{id}:
+    get:
+      operationId: getBloodBank
+      tags: [blood-banks]
+      summary: Get blood bank
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood bank
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodBank"
+
+  /blood-banks/{id}/inventory:
+    get:
+      operationId: getBloodBankInventory
+      tags: [blood-banks]
+      summary: Get blood bank inventory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inventory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryListResponse"
+    post:
+      operationId: addBloodBankInventory
+      tags: [blood-banks]
+      summary: Add inventory to blood bank
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryInput"
+      responses:
+        "201":
+          description: Added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inventory"
+
+  # LABORATORIES
+  /laboratories:
+    get:
+      operationId: listLaboratories
+      tags: [laboratories]
+      summary: List laboratories
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Laboratories list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LaboratoryListResponse"
+    post:
+      operationId: createLaboratory
+      tags: [laboratories]
+      summary: Create laboratory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LaboratoryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Laboratory"
+
+  /laboratories/{id}:
+    get:
+      operationId: getLaboratory
+      tags: [laboratories]
+      summary: Get laboratory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Laboratory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Laboratory"
+
+  /laboratories/{id}/tests:
+    get:
+      operationId: getLaboratoryTests
+      tags: [laboratories]
+      summary: Get laboratory test results
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Test results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabTestListResponse"
+    post:
+      operationId: createLabTest
+      tags: [laboratories]
+      summary: Create lab test
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LabTestInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabTest"
+
+  # AMBULANCES
+  /ambulances:
+    get:
+      operationId: listAmbulances
+      tags: [ambulances]
+      summary: List ambulances
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Ambulances list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AmbulanceListResponse"
+    post:
+      operationId: createAmbulance
+      tags: [ambulances]
+      summary: Create ambulance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AmbulanceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ambulance"
+
+  /ambulances/{id}:
+    get:
+      operationId: getAmbulance
+      tags: [ambulances]
+      summary: Get ambulance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Ambulance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ambulance"
+    patch:
+      operationId: updateAmbulance
+      tags: [ambulances]
+      summary: Update ambulance status/location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AmbulanceUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ambulance"
+
+  # VOLUNTEERS
+  /volunteers:
+    get:
+      operationId: listVolunteers
+      tags: [volunteers]
+      summary: List volunteers
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Volunteers list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VolunteerListResponse"
+    post:
+      operationId: createVolunteer
+      tags: [volunteers]
+      summary: Register as volunteer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VolunteerInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Volunteer"
+
+  /volunteers/{id}:
+    get:
+      operationId: getVolunteer
+      tags: [volunteers]
+      summary: Get volunteer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Volunteer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Volunteer"
+
+  # BLOOD INVENTORY
+  /inventory:
+    get:
+      operationId: listInventory
+      tags: [inventory]
+      summary: List blood inventory
+      parameters:
+        - name: bloodGroup
+          in: query
+          schema:
+            type: string
+        - name: bloodBankId
+          in: query
+          schema:
+            type: integer
+        - name: hospitalId
+          in: query
+          schema:
+            type: integer
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inventory list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryListResponse"
+
+  /inventory/summary:
+    get:
+      operationId: getInventorySummary
+      tags: [inventory]
+      summary: Get inventory summary by blood group
+      responses:
+        "200":
+          description: Inventory summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventorySummaryResponse"
+
+  /inventory/search:
+    get:
+      operationId: searchInventory
+      tags: [inventory]
+      summary: Search available blood
+      parameters:
+        - name: bloodGroup
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: units
+          in: query
+          schema:
+            type: integer
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: district
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventorySearchResponse"
+
+  # BLOOD UNITS
+  /blood-units:
+    get:
+      operationId: listBloodUnits
+      tags: [blood-units]
+      summary: List blood units
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: bloodGroup
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood units list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodUnitListResponse"
+    post:
+      operationId: createBloodUnit
+      tags: [blood-units]
+      summary: Register a new blood unit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BloodUnitInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodUnit"
+
+  /blood-units/{id}:
+    get:
+      operationId: getBloodUnit
+      tags: [blood-units]
+      summary: Get blood unit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood unit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodUnit"
+    patch:
+      operationId: updateBloodUnit
+      tags: [blood-units]
+      summary: Update blood unit status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BloodUnitUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodUnit"
+
+  /blood-units/{id}/timeline:
+    get:
+      operationId: getBloodUnitTimeline
+      tags: [blood-units]
+      summary: Get blood unit lifecycle timeline
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Timeline
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodUnitTimelineResponse"
+
+  # BLOOD REQUESTS
+  /blood-requests:
+    get:
+      operationId: listBloodRequests
+      tags: [inventory]
+      summary: List blood requests
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: bloodGroup
+          in: query
+          schema:
+            type: string
+        - name: hospitalId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestListResponse"
+    post:
+      operationId: createBloodRequest
+      tags: [inventory]
+      summary: Create blood request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BloodRequestInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequest"
+
+  /blood-requests/{id}:
+    get:
+      operationId: getBloodRequest
+      tags: [inventory]
+      summary: Get blood request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequest"
+    patch:
+      operationId: updateBloodRequest
+      tags: [inventory]
+      summary: Update blood request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BloodRequestUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequest"
+
+  # EMERGENCY SOS
+  /emergency:
+    get:
+      operationId: listEmergencies
+      tags: [emergency]
+      summary: List emergencies
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: bloodGroup
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Emergencies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyListResponse"
+    post:
+      operationId: createEmergency
+      tags: [emergency]
+      summary: Create emergency SOS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmergencyInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Emergency"
+
+  /emergency/{id}:
+    get:
+      operationId: getEmergency
+      tags: [emergency]
+      summary: Get emergency
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Emergency
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Emergency"
+    patch:
+      operationId: updateEmergency
+      tags: [emergency]
+      summary: Update emergency status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmergencyUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Emergency"
+
+  /emergency/active:
+    get:
+      operationId: getActiveEmergencies
+      tags: [emergency]
+      summary: Get all active emergencies
+      responses:
+        "200":
+          description: Active emergencies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyListResponse"
+
+  # WALLET
+  /wallet/{userId}:
+    get:
+      operationId: getWallet
+      tags: [wallet]
+      summary: Get wallet for user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Wallet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+
+  /wallet/transactions:
+    get:
+      operationId: getWalletTransactions
+      tags: [wallet]
+      summary: Get wallet transactions
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletTransactionListResponse"
+
+  /wallet/transfer:
+    post:
+      operationId: walletTransfer
+      tags: [wallet]
+      summary: Transfer credits between family members
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletTransferInput"
+      responses:
+        "200":
+          description: Transfer successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferResult"
+
+  # NOTIFICATIONS
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: Get notifications for current user
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationListResponse"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Marked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: Marked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # ANALYTICS
+  /analytics/national:
+    get:
+      operationId: getNationalAnalytics
+      tags: [analytics]
+      summary: Get national blood grid analytics
+      responses:
+        "200":
+          description: National analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NationalAnalytics"
+
+  /analytics/state/{stateCode}:
+    get:
+      operationId: getStateAnalytics
+      tags: [analytics]
+      summary: Get state analytics
+      parameters:
+        - name: stateCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: State analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateAnalytics"
+
+  /analytics/district/{districtCode}:
+    get:
+      operationId: getDistrictAnalytics
+      tags: [analytics]
+      summary: Get district analytics
+      parameters:
+        - name: districtCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: District analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DistrictAnalytics"
+
+  /analytics/supply-demand:
+    get:
+      operationId: getSupplyDemandTrend
+      tags: [analytics]
+      summary: Get supply vs demand trend
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, 1y]
+      responses:
+        "200":
+          description: Supply demand trend
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplyDemandTrend"
+
+  /analytics/emergency-trends:
+    get:
+      operationId: getEmergencyTrends
+      tags: [analytics]
+      summary: Get emergency SOS trends
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, 1y]
+      responses:
+        "200":
+          description: Emergency trends
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyTrend"
+
+  # DASHBOARD
+  /dashboard/national:
+    get:
+      operationId: getNationalDashboard
+      tags: [dashboard]
+      summary: National command center dashboard
+      responses:
+        "200":
+          description: National dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NationalDashboard"
+
+  /dashboard/donor/{userId}:
+    get:
+      operationId: getDonorDashboard
+      tags: [dashboard]
+      summary: Donor personal dashboard
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Donor dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorDashboard"
+
+  /dashboard/hospital/{hospitalId}:
+    get:
+      operationId: getHospitalDashboard
+      tags: [dashboard]
+      summary: Hospital dashboard
+      parameters:
+        - name: hospitalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Hospital dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HospitalDashboard"
+
+  /dashboard/blood-bank/{bloodBankId}:
+    get:
+      operationId: getBloodBankDashboard
+      tags: [dashboard]
+      summary: Blood bank dashboard
+      parameters:
+        - name: bloodBankId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blood bank dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodBankDashboard"
+
+  /dashboard/state/{stateCode}:
+    get:
+      operationId: getStateDashboard
+      tags: [dashboard]
+      summary: State command center dashboard
+      parameters:
+        - name: stateCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: State dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StateDashboard"
+
+  /dashboard/district/{districtCode}:
+    get:
+      operationId: getDistrictDashboard
+      tags: [dashboard]
+      summary: District command center dashboard
+      parameters:
+        - name: districtCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: District dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DistrictDashboard"
+
+  /dashboard/ai-predictions:
+    get:
+      operationId: getAiPredictions
+      tags: [dashboard]
+      summary: AI blood demand and supply predictions
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: bloodGroup
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: AI predictions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiPredictions"
+
+  /dashboard/audit-logs:
+    get:
+      operationId: getAuditLogs
+      tags: [dashboard]
+      summary: Get audit logs
+      parameters:
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: userId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditLogListResponse"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    # AUTH SCHEMAS
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    RegisterInput:
+      type: object
+      required: [email, password, name, role]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [CITIZEN, DONOR, PATIENT, HOSPITAL, BLOOD_BANK, LABORATORY, AMBULANCE, VOLUNTEER, DISTRICT_ADMIN, STATE_ADMIN, NATIONAL_ADMIN, SUPER_ADMIN]
+        phone:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+
+    RefreshTokenInput:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [accessToken, refreshToken, user]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, email, name, role, createdAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        phone:
+          type: ["string", "null"]
+        state:
+          type: ["string", "null"]
+        district:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        isVerified:
+          type: boolean
+        createdAt:
+          type: string
+
+    UserListResponse:
+      type: object
+      required: [users, total, page, limit]
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # DONOR SCHEMAS
+    DonorInput:
+      type: object
+      required: [bloodGroup, dateOfBirth, gender, weight, height]
+      properties:
+        bloodGroup:
+          type: string
+          enum: [A+, A-, B+, B-, AB+, AB-, O+, O-]
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+          enum: [MALE, FEMALE, OTHER]
+        weight:
+          type: number
+        height:
+          type: number
+        abhaId:
+          type: string
+        address:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        photo:
+          type: string
+
+    DonorUpdate:
+      type: object
+      properties:
+        weight:
+          type: number
+        height:
+          type: number
+        address:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        photo:
+          type: string
+
+    Donor:
+      type: object
+      required: [id, userId, bloodGroup, dateOfBirth, gender, weight, height, donationCount, eligibilityStatus, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        bloodGroup:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+        weight:
+          type: number
+        height:
+          type: number
+        abhaId:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        state:
+          type: ["string", "null"]
+        district:
+          type: ["string", "null"]
+        photo:
+          type: ["string", "null"]
+        donationCount:
+          type: integer
+        lastDonationDate:
+          type: ["string", "null"]
+        eligibilityStatus:
+          type: boolean
+        livesImpacted:
+          type: integer
+        rewardPoints:
+          type: integer
+        healthCredits:
+          type: integer
+        createdAt:
+          type: string
+
+    DonorListResponse:
+      type: object
+      required: [donors, total, page, limit]
+      properties:
+        donors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Donor"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    DonationHistory:
+      type: object
+      required: [id, donorId, donatedAt, bloodGroup, units, bloodBankName]
+      properties:
+        id:
+          type: integer
+        donorId:
+          type: integer
+        donatedAt:
+          type: string
+        bloodGroup:
+          type: string
+        units:
+          type: number
+        bloodBankName:
+          type: string
+        certificateUrl:
+          type: ["string", "null"]
+        impactMessage:
+          type: ["string", "null"]
+
+    DonationHistoryResponse:
+      type: object
+      required: [donations, total]
+      properties:
+        donations:
+          type: array
+          items:
+            $ref: "#/components/schemas/DonationHistory"
+        total:
+          type: integer
+
+    EligibilityStatus:
+      type: object
+      required: [eligible, reason, nextEligibleDate]
+      properties:
+        eligible:
+          type: boolean
+        reason:
+          type: string
+        nextEligibleDate:
+          type: ["string", "null"]
+        lastDonationDate:
+          type: ["string", "null"]
+        daysSinceLastDonation:
+          type: ["integer", "null"]
+
+    # PATIENT SCHEMAS
+    PatientInput:
+      type: object
+      required: [bloodGroup, dateOfBirth, gender]
+      properties:
+        bloodGroup:
+          type: string
+          enum: [A+, A-, B+, B-, AB+, AB-, O+, O-]
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+          enum: [MALE, FEMALE, OTHER]
+        weight:
+          type: number
+        height:
+          type: number
+        abhaId:
+          type: string
+        medicalNotes:
+          type: string
+        address:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+
+    PatientUpdate:
+      type: object
+      properties:
+        weight:
+          type: number
+        height:
+          type: number
+        medicalNotes:
+          type: string
+        address:
+          type: string
+
+    Patient:
+      type: object
+      required: [id, userId, bloodGroup, dateOfBirth, gender, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        bloodGroup:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+        weight:
+          type: ["number", "null"]
+        height:
+          type: ["number", "null"]
+        abhaId:
+          type: ["string", "null"]
+        medicalNotes:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        state:
+          type: ["string", "null"]
+        district:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    PatientListResponse:
+      type: object
+      required: [patients, total, page, limit]
+      properties:
+        patients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Patient"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # HOSPITAL SCHEMAS
+    HospitalInput:
+      type: object
+      required: [name, registrationNumber, state, district, address, contactNumber, type]
+      properties:
+        name:
+          type: string
+        registrationNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        address:
+          type: string
+        contactNumber:
+          type: string
+        email:
+          type: string
+        type:
+          type: string
+          enum: [GOVERNMENT, PRIVATE, TRUST, MILITARY]
+        totalBeds:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    Hospital:
+      type: object
+      required: [id, name, registrationNumber, state, district, address, contactNumber, type, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        registrationNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        address:
+          type: string
+        contactNumber:
+          type: string
+        email:
+          type: ["string", "null"]
+        type:
+          type: string
+        totalBeds:
+          type: ["integer", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    HospitalListResponse:
+      type: object
+      required: [hospitals, total, page, limit]
+      properties:
+        hospitals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hospital"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # BLOOD BANK SCHEMAS
+    BloodBankInput:
+      type: object
+      required: [name, licenseNumber, state, district, address, contactNumber]
+      properties:
+        name:
+          type: string
+        licenseNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        address:
+          type: string
+        contactNumber:
+          type: string
+        email:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        isComponentFacility:
+          type: boolean
+        is24x7:
+          type: boolean
+
+    BloodBank:
+      type: object
+      required: [id, name, licenseNumber, state, district, address, contactNumber, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        licenseNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        address:
+          type: string
+        contactNumber:
+          type: string
+        email:
+          type: ["string", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        isComponentFacility:
+          type: boolean
+        is24x7:
+          type: boolean
+        isActive:
+          type: boolean
+        totalUnitsInStock:
+          type: integer
+        createdAt:
+          type: string
+
+    BloodBankListResponse:
+      type: object
+      required: [bloodBanks, total, page, limit]
+      properties:
+        bloodBanks:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodBank"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # LABORATORY SCHEMAS
+    LaboratoryInput:
+      type: object
+      required: [name, licenseNumber, state, district, address, contactNumber]
+      properties:
+        name:
+          type: string
+        licenseNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        address:
+          type: string
+        contactNumber:
+          type: string
+        email:
+          type: string
+
+    Laboratory:
+      type: object
+      required: [id, name, licenseNumber, state, district, address, contactNumber, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        licenseNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        address:
+          type: string
+        contactNumber:
+          type: string
+        email:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    LaboratoryListResponse:
+      type: object
+      required: [laboratories, total, page, limit]
+      properties:
+        laboratories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Laboratory"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    LabTestInput:
+      type: object
+      required: [bloodUnitId, testType, result]
+      properties:
+        bloodUnitId:
+          type: integer
+        testType:
+          type: string
+          enum: [HIV, HBV, HCV, SYPHILIS, MALARIA, BLOOD_GROUP_CONFIRM, CROSSMATCH]
+        result:
+          type: string
+          enum: [POSITIVE, NEGATIVE, INCONCLUSIVE]
+        notes:
+          type: string
+
+    LabTest:
+      type: object
+      required: [id, laboratoryId, bloodUnitId, testType, result, testedAt]
+      properties:
+        id:
+          type: integer
+        laboratoryId:
+          type: integer
+        bloodUnitId:
+          type: integer
+        testType:
+          type: string
+        result:
+          type: string
+        notes:
+          type: ["string", "null"]
+        testedAt:
+          type: string
+        testedBy:
+          type: ["string", "null"]
+
+    LabTestListResponse:
+      type: object
+      required: [tests, total]
+      properties:
+        tests:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabTest"
+        total:
+          type: integer
+
+    # AMBULANCE SCHEMAS
+    AmbulanceInput:
+      type: object
+      required: [vehicleNumber, state, district, contactNumber, type]
+      properties:
+        vehicleNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        contactNumber:
+          type: string
+        type:
+          type: string
+          enum: [BASIC, ADVANCED, MOBILE_ICU, BLOOD_TRANSPORT]
+        driverName:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    AmbulanceUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [AVAILABLE, DISPATCHED, IN_TRANSIT, AT_SCENE, RETURNING, MAINTENANCE]
+        latitude:
+          type: number
+        longitude:
+          type: number
+        emergencyId:
+          type: ["integer", "null"]
+
+    Ambulance:
+      type: object
+      required: [id, vehicleNumber, state, district, contactNumber, type, status, createdAt]
+      properties:
+        id:
+          type: integer
+        vehicleNumber:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        contactNumber:
+          type: string
+        type:
+          type: string
+        driverName:
+          type: ["string", "null"]
+        status:
+          type: string
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        emergencyId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    AmbulanceListResponse:
+      type: object
+      required: [ambulances, total, page, limit]
+      properties:
+        ambulances:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ambulance"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # VOLUNTEER SCHEMAS
+    VolunteerInput:
+      type: object
+      required: [state, district, skills]
+      properties:
+        state:
+          type: string
+        district:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        availability:
+          type: string
+          enum: [FULL_TIME, PART_TIME, EMERGENCY_ONLY, WEEKENDS]
+
+    Volunteer:
+      type: object
+      required: [id, userId, name, state, district, skills, isVerified, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        state:
+          type: string
+        district:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        availability:
+          type: ["string", "null"]
+        isVerified:
+          type: boolean
+        isActive:
+          type: boolean
+        totalEventsParticipated:
+          type: integer
+        createdAt:
+          type: string
+
+    VolunteerListResponse:
+      type: object
+      required: [volunteers, total, page, limit]
+      properties:
+        volunteers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Volunteer"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # INVENTORY SCHEMAS
+    InventoryInput:
+      type: object
+      required: [bloodGroup, units, collectionDate]
+      properties:
+        bloodGroup:
+          type: string
+          enum: [A+, A-, B+, B-, AB+, AB-, O+, O-]
+        units:
+          type: number
+        collectionDate:
+          type: string
+        expiryDate:
+          type: string
+        donorId:
+          type: integer
+
+    Inventory:
+      type: object
+      required: [id, bloodBankId, bloodGroup, units, collectionDate, expiryDate, status, createdAt]
+      properties:
+        id:
+          type: integer
+        bloodBankId:
+          type: integer
+        bloodBankName:
+          type: string
+        bloodGroup:
+          type: string
+        units:
+          type: number
+        collectionDate:
+          type: string
+        expiryDate:
+          type: string
+        status:
+          type: string
+          enum: [AVAILABLE, RESERVED, DISPATCHED, EXPIRED, DISCARDED]
+        donorId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    InventoryListResponse:
+      type: object
+      required: [inventory, total, page, limit]
+      properties:
+        inventory:
+          type: array
+          items:
+            $ref: "#/components/schemas/Inventory"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    BloodGroupCount:
+      type: object
+      required: [bloodGroup, units, percentage]
+      properties:
+        bloodGroup:
+          type: string
+        units:
+          type: number
+        percentage:
+          type: number
+        status:
+          type: string
+          enum: [CRITICAL, LOW, ADEQUATE, SURPLUS]
+
+    InventorySummaryResponse:
+      type: object
+      required: [totalUnits, byBloodGroup, criticalGroups, lastUpdated]
+      properties:
+        totalUnits:
+          type: number
+        byBloodGroup:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodGroupCount"
+        criticalGroups:
+          type: array
+          items:
+            type: string
+        lastUpdated:
+          type: string
+
+    InventorySearchResult:
+      type: object
+      required: [bloodBankId, bloodBankName, bloodGroup, units, state, district, distance]
+      properties:
+        bloodBankId:
+          type: integer
+        bloodBankName:
+          type: string
+        bloodGroup:
+          type: string
+        units:
+          type: number
+        state:
+          type: string
+        district:
+          type: string
+        distance:
+          type: ["number", "null"]
+        contactNumber:
+          type: string
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+
+    InventorySearchResponse:
+      type: object
+      required: [results, totalFound, bloodGroup]
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/InventorySearchResult"
+        totalFound:
+          type: integer
+        bloodGroup:
+          type: string
+
+    # BLOOD UNIT TRACKING
+    BloodUnitInput:
+      type: object
+      required: [bloodGroup, donorId, collectionDate]
+      properties:
+        bloodGroup:
+          type: string
+          enum: [A+, A-, B+, B-, AB+, AB-, O+, O-]
+        donorId:
+          type: integer
+        collectionDate:
+          type: string
+        bloodBankId:
+          type: integer
+
+    BloodUnitUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [DONATED, COLLECTED, TESTING, LAB_VALIDATION, STORAGE, RESERVED, DISPATCHED, IN_TRANSIT, AT_HOSPITAL, TRANSFUSED, EXPIRED, DISCARDED]
+        currentLocation:
+          type: string
+        hospitalId:
+          type: ["integer", "null"]
+        notes:
+          type: string
+
+    BloodUnit:
+      type: object
+      required: [id, unitCode, bloodGroup, donorId, collectionDate, expiryDate, status, createdAt]
+      properties:
+        id:
+          type: integer
+        unitCode:
+          type: string
+        bloodGroup:
+          type: string
+        donorId:
+          type: integer
+        donorName:
+          type: ["string", "null"]
+        collectionDate:
+          type: string
+        expiryDate:
+          type: string
+        status:
+          type: string
+        currentLocation:
+          type: ["string", "null"]
+        bloodBankId:
+          type: ["integer", "null"]
+        bloodBankName:
+          type: ["string", "null"]
+        hospitalId:
+          type: ["integer", "null"]
+        hospitalName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    BloodUnitListResponse:
+      type: object
+      required: [bloodUnits, total, page, limit]
+      properties:
+        bloodUnits:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodUnit"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    TimelineEvent:
+      type: object
+      required: [status, timestamp, location]
+      properties:
+        status:
+          type: string
+        timestamp:
+          type: string
+        location:
+          type: string
+        notes:
+          type: ["string", "null"]
+        updatedBy:
+          type: ["string", "null"]
+
+    BloodUnitTimelineResponse:
+      type: object
+      required: [unitId, unitCode, bloodGroup, timeline]
+      properties:
+        unitId:
+          type: integer
+        unitCode:
+          type: string
+        bloodGroup:
+          type: string
+        timeline:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineEvent"
+
+    # BLOOD REQUEST SCHEMAS
+    BloodRequestInput:
+      type: object
+      required: [bloodGroup, units, urgency, patientId, hospitalId]
+      properties:
+        bloodGroup:
+          type: string
+          enum: [A+, A-, B+, B-, AB+, AB-, O+, O-]
+        units:
+          type: number
+        urgency:
+          type: string
+          enum: [ROUTINE, URGENT, EMERGENCY]
+        patientId:
+          type: integer
+        hospitalId:
+          type: integer
+        requiredBy:
+          type: string
+        notes:
+          type: string
+
+    BloodRequestUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, APPROVED, FULFILLED, PARTIALLY_FULFILLED, CANCELLED, REJECTED]
+        bloodBankId:
+          type: integer
+        notes:
+          type: string
+
+    BloodRequest:
+      type: object
+      required: [id, bloodGroup, units, urgency, status, createdAt]
+      properties:
+        id:
+          type: integer
+        bloodGroup:
+          type: string
+        units:
+          type: number
+        urgency:
+          type: string
+        status:
+          type: string
+        patientId:
+          type: integer
+        patientName:
+          type: ["string", "null"]
+        hospitalId:
+          type: integer
+        hospitalName:
+          type: ["string", "null"]
+        bloodBankId:
+          type: ["integer", "null"]
+        bloodBankName:
+          type: ["string", "null"]
+        requiredBy:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    BloodRequestListResponse:
+      type: object
+      required: [requests, total, page, limit]
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodRequest"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # EMERGENCY SCHEMAS
+    EmergencyInput:
+      type: object
+      required: [patientName, bloodGroup, unitsRequired, hospitalId, contactNumber]
+      properties:
+        patientName:
+          type: string
+        bloodGroup:
+          type: string
+          enum: [A+, A-, B+, B-, AB+, AB-, O+, O-]
+        unitsRequired:
+          type: number
+        hospitalId:
+          type: integer
+        contactNumber:
+          type: string
+        patientAge:
+          type: integer
+        medicalCondition:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        notes:
+          type: string
+
+    EmergencyUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ACTIVE, BROADCAST, DISPATCHED, FULFILLED, RESOLVED, CANCELLED]
+        ambulanceId:
+          type: ["integer", "null"]
+        bloodBankId:
+          type: ["integer", "null"]
+        notes:
+          type: string
+
+    Emergency:
+      type: object
+      required: [id, sosCode, patientName, bloodGroup, unitsRequired, status, createdAt]
+      properties:
+        id:
+          type: integer
+        sosCode:
+          type: string
+        patientName:
+          type: string
+        bloodGroup:
+          type: string
+        unitsRequired:
+          type: number
+        status:
+          type: string
+        hospitalId:
+          type: integer
+        hospitalName:
+          type: ["string", "null"]
+        contactNumber:
+          type: string
+        patientAge:
+          type: ["integer", "null"]
+        medicalCondition:
+          type: ["string", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        ambulanceId:
+          type: ["integer", "null"]
+        ambulanceNumber:
+          type: ["string", "null"]
+        bloodBankId:
+          type: ["integer", "null"]
+        bloodBankName:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        resolvedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    EmergencyListResponse:
+      type: object
+      required: [emergencies, total, page, limit]
+      properties:
+        emergencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Emergency"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # WALLET SCHEMAS
+    Wallet:
+      type: object
+      required: [id, userId, bloodCredits, donationCredits, familyProtected, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        bloodCredits:
+          type: number
+        donationCredits:
+          type: number
+        emergencyCredits:
+          type: number
+        familyProtected:
+          type: boolean
+        qrCode:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    WalletTransaction:
+      type: object
+      required: [id, walletId, type, amount, description, createdAt]
+      properties:
+        id:
+          type: integer
+        walletId:
+          type: integer
+        type:
+          type: string
+          enum: [CREDIT_DONATION, DEBIT_EMERGENCY, INTRA_FAMILY_TRANSFER, BONUS, PENALTY]
+        amount:
+          type: number
+        description:
+          type: string
+        referenceId:
+          type: ["string", "null"]
+        balanceAfter:
+          type: number
+        createdAt:
+          type: string
+
+    WalletTransactionListResponse:
+      type: object
+      required: [transactions, total, page, limit]
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/WalletTransaction"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    WalletTransferInput:
+      type: object
+      required: [fromUserId, toUserId, amount]
+      properties:
+        fromUserId:
+          type: integer
+        toUserId:
+          type: integer
+        amount:
+          type: number
+        reason:
+          type: string
+
+    TransferResult:
+      type: object
+      required: [success, message, fromBalance, toBalance]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        fromBalance:
+          type: number
+        toBalance:
+          type: number
+
+    # NOTIFICATION SCHEMAS
+    Notification:
+      type: object
+      required: [id, userId, type, title, message, isRead, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+          enum: [EMERGENCY_SOS, DONATION_REMINDER, ELIGIBILITY_RESTORED, BLOOD_AVAILABLE, REQUEST_FULFILLED, IMPACT_UPDATE, SYSTEM, REWARD_EARNED]
+        title:
+          type: string
+        message:
+          type: string
+        isRead:
+          type: boolean
+        actionUrl:
+          type: ["string", "null"]
+        metadata:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    NotificationListResponse:
+      type: object
+      required: [notifications, total, unreadCount, page, limit]
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        total:
+          type: integer
+        unreadCount:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    # ANALYTICS SCHEMAS
+    StateBloodData:
+      type: object
+      required: [stateCode, stateName, totalUnits, donors, hospitals, bloodBanks, activeEmergencies, supplyStatus]
+      properties:
+        stateCode:
+          type: string
+        stateName:
+          type: string
+        totalUnits:
+          type: number
+        donors:
+          type: integer
+        hospitals:
+          type: integer
+        bloodBanks:
+          type: integer
+        activeEmergencies:
+          type: integer
+        supplyStatus:
+          type: string
+          enum: [CRITICAL, LOW, ADEQUATE, SURPLUS]
+
+    NationalAnalytics:
+      type: object
+      required: [totalBloodUnits, activeDonors, registeredHospitals, bloodBanks, laboratories, ambulances, activeEmergencies, stateData, lastUpdated]
+      properties:
+        totalBloodUnits:
+          type: number
+        activeDonors:
+          type: integer
+        registeredHospitals:
+          type: integer
+        bloodBanks:
+          type: integer
+        laboratories:
+          type: integer
+        ambulances:
+          type: integer
+        activeEmergencies:
+          type: integer
+        totalDonations:
+          type: integer
+        livesImpacted:
+          type: integer
+        stateData:
+          type: array
+          items:
+            $ref: "#/components/schemas/StateBloodData"
+        byBloodGroup:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodGroupCount"
+        lastUpdated:
+          type: string
+
+    StateAnalytics:
+      type: object
+      required: [stateCode, stateName, totalUnits, donors, hospitals, bloodBanks, activeEmergencies, byBloodGroup, districtBreakdown]
+      properties:
+        stateCode:
+          type: string
+        stateName:
+          type: string
+        totalUnits:
+          type: number
+        donors:
+          type: integer
+        hospitals:
+          type: integer
+        bloodBanks:
+          type: integer
+        activeEmergencies:
+          type: integer
+        byBloodGroup:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodGroupCount"
+        districtBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/StateBloodData"
+
+    DistrictAnalytics:
+      type: object
+      required: [districtCode, districtName, stateName, totalUnits, donors, hospitals, bloodBanks, activeEmergencies, byBloodGroup]
+      properties:
+        districtCode:
+          type: string
+        districtName:
+          type: string
+        stateName:
+          type: string
+        totalUnits:
+          type: number
+        donors:
+          type: integer
+        hospitals:
+          type: integer
+        bloodBanks:
+          type: integer
+        activeEmergencies:
+          type: integer
+        byBloodGroup:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodGroupCount"
+
+    TrendDataPoint:
+      type: object
+      required: [date, supply, demand]
+      properties:
+        date:
+          type: string
+        supply:
+          type: number
+        demand:
+          type: number
+
+    SupplyDemandTrend:
+      type: object
+      required: [period, data, supplyTotal, demandTotal, surplus]
+      properties:
+        period:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendDataPoint"
+        supplyTotal:
+          type: number
+        demandTotal:
+          type: number
+        surplus:
+          type: number
+
+    EmergencyTrendPoint:
+      type: object
+      required: [date, count, resolved, avgResolutionMinutes]
+      properties:
+        date:
+          type: string
+        count:
+          type: integer
+        resolved:
+          type: integer
+        avgResolutionMinutes:
+          type: number
+
+    EmergencyTrend:
+      type: object
+      required: [period, data, totalEmergencies, resolvedCount, avgResolutionTime]
+      properties:
+        period:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmergencyTrendPoint"
+        totalEmergencies:
+          type: integer
+        resolvedCount:
+          type: integer
+        avgResolutionTime:
+          type: number
+
+    # DASHBOARD SCHEMAS
+    NationalDashboard:
+      type: object
+      required: [stats, recentEmergencies, criticalStates, inventorySummary, supplyDemandTrend, whoReadiness]
+      properties:
+        stats:
+          $ref: "#/components/schemas/NationalAnalytics"
+        recentEmergencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Emergency"
+        criticalStates:
+          type: array
+          items:
+            $ref: "#/components/schemas/StateBloodData"
+        inventorySummary:
+          $ref: "#/components/schemas/InventorySummaryResponse"
+        supplyDemandTrend:
+          $ref: "#/components/schemas/SupplyDemandTrend"
+        whoReadiness:
+          $ref: "#/components/schemas/WhoReadiness"
+
+    WhoReadiness:
+      type: object
+      required: [overallScore, icd11Compatible, fhirReady, abdmIntegrated, reportingReady]
+      properties:
+        overallScore:
+          type: number
+        icd11Compatible:
+          type: boolean
+        fhirReady:
+          type: boolean
+        abdmIntegrated:
+          type: boolean
+        reportingReady:
+          type: boolean
+        lastAudit:
+          type: string
+
+    DonorDashboard:
+      type: object
+      required: [donor, wallet, recentDonations, eligibilityStatus, impactStats, upcomingCamps]
+      properties:
+        donor:
+          $ref: "#/components/schemas/Donor"
+        wallet:
+          $ref: "#/components/schemas/Wallet"
+        recentDonations:
+          type: array
+          items:
+            $ref: "#/components/schemas/DonationHistory"
+        eligibilityStatus:
+          $ref: "#/components/schemas/EligibilityStatus"
+        impactStats:
+          type: object
+          required: [livesImpacted, totalUnits, donationStreak, rewardPoints]
+          properties:
+            livesImpacted:
+              type: integer
+            totalUnits:
+              type: number
+            donationStreak:
+              type: integer
+            rewardPoints:
+              type: integer
+        upcomingCamps:
+          type: array
+          items:
+            type: object
+            required: [name, date, location, district]
+            properties:
+              name:
+                type: string
+              date:
+                type: string
+              location:
+                type: string
+              district:
+                type: string
+
+    HospitalDashboard:
+      type: object
+      required: [hospital, inventory, pendingRequests, recentRequests, activeEmergencies]
+      properties:
+        hospital:
+          $ref: "#/components/schemas/Hospital"
+        inventory:
+          $ref: "#/components/schemas/InventorySummaryResponse"
+        pendingRequests:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodRequest"
+        recentRequests:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodRequest"
+        activeEmergencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Emergency"
+
+    BloodBankDashboard:
+      type: object
+      required: [bloodBank, inventory, incomingRequests, outgoingRequests, expiringUnits, stats]
+      properties:
+        bloodBank:
+          $ref: "#/components/schemas/BloodBank"
+        inventory:
+          $ref: "#/components/schemas/InventorySummaryResponse"
+        incomingRequests:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodRequest"
+        outgoingRequests:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodRequest"
+        expiringUnits:
+          type: array
+          items:
+            $ref: "#/components/schemas/Inventory"
+        stats:
+          type: object
+          required: [totalUnits, unitsExpiringSoon, requestsFulfilled, requestsPending]
+          properties:
+            totalUnits:
+              type: number
+            unitsExpiringSoon:
+              type: integer
+            requestsFulfilled:
+              type: integer
+            requestsPending:
+              type: integer
+
+    StateDashboard:
+      type: object
+      required: [stateCode, stateName, analytics, activeEmergencies, districtBreakdown, bloodBanks, hospitals]
+      properties:
+        stateCode:
+          type: string
+        stateName:
+          type: string
+        analytics:
+          $ref: "#/components/schemas/StateAnalytics"
+        activeEmergencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Emergency"
+        districtBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/StateBloodData"
+        bloodBanks:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodBank"
+        hospitals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hospital"
+
+    DistrictDashboard:
+      type: object
+      required: [districtCode, districtName, analytics, activeEmergencies, bloodBanks, hospitals, ambulances]
+      properties:
+        districtCode:
+          type: string
+        districtName:
+          type: string
+        analytics:
+          $ref: "#/components/schemas/DistrictAnalytics"
+        activeEmergencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Emergency"
+        bloodBanks:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodBank"
+        hospitals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hospital"
+        ambulances:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ambulance"
+
+    AiPrediction:
+      type: object
+      required: [bloodGroup, predictedDemand, predictedSupply, confidence, recommendation]
+      properties:
+        bloodGroup:
+          type: string
+        predictedDemand:
+          type: number
+        predictedSupply:
+          type: number
+        confidence:
+          type: number
+        recommendation:
+          type: string
+        riskLevel:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+
+    AiPredictions:
+      type: object
+      required: [predictions, forecastPeriod, generatedAt, overallRisk]
+      properties:
+        predictions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AiPrediction"
+        forecastPeriod:
+          type: string
+        generatedAt:
+          type: string
+        overallRisk:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+
+    AuditLog:
+      type: object
+      required: [id, action, userId, createdAt]
+      properties:
+        id:
+          type: integer
+        action:
+          type: string
+        userId:
+          type: integer
+        userName:
+          type: ["string", "null"]
+        resourceType:
+          type: ["string", "null"]
+        resourceId:
+          type: ["integer", "null"]
+        metadata:
+          type: ["string", "null"]
+        ipAddress:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AuditLogListResponse:
+      type: object
+      required: [logs, total, page, limit]
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditLog"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer

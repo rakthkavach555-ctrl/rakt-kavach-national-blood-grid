@@ -1,0 +1,1 @@
+- [RAKT KAVACH Architecture](rakt-kavach-architecture.md) — stack quirks, db build order, param types, seed creds, use-toast path, zustand install

@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "RAKT KAVACH — National Digital Blood Grid"
+version = "1.0.0"
+id = "artifacts/rakt-kavach"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25231
+
+[services.development]
+run = "pnpm --filter @workspace/rakt-kavach run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rakt-kavach", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/rakt-kavach/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25231"
+BASE_PATH = "/"
