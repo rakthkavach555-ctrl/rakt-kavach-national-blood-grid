@@ -8,6 +8,9 @@
     "./schema": "./src/schema/index.ts"
   },
   "scripts": {
+    "start": "node src/index.ts",
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
     "push": "drizzle-kit push --config ./drizzle.config.ts",
     "push-force": "drizzle-kit push --force --config ./drizzle.config.ts"
   },
@@ -20,6 +23,8 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/pg": "^8.20.0",
-    "drizzle-kit": "^0.31.10"
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.9.3",
+    "ts-node": "^10.9.2"
   }
 }

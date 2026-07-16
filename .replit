@@ -1,4 +1,4 @@
-modules = ["nodejs-24", "postgresql-16"]
+modules = ["nodejs-20", "nodejs-24", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -21,3 +21,25 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+PORT = "3000"
+BASE_PATH = "/"
+
+[userenv.shared]
+CI = "true"
+PORT = "3000"
+BASE_PATH = "/"
+PNPM_SKIP_SOURCE_MAP_CHECK = "Can't resolve original location"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 8081

@@ -1,167 +1,86 @@
+// स्मार्ट स्टार सॉल्यूशंस - आपातकालीन एसओएस लाइव ग्रिड (Emergency Grid)
 import React, { useState } from 'react';
-import { AppLayout } from '@/components/AppLayout';
-import { useGetActiveEmergencies, useCreateEmergency } from '@workspace/api-client-react';
-import { Activity, ShieldAlert, MapPin, Ambulance, Hospital, Clock, Phone, AlertTriangle, Droplet } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Link } from 'wouter';
-import { useToast } from '@/components/ui/use-toast';
+import { useFormatEngine } from '../context/FormatContext';
+import { useLiveTracking } from '../hooks/useLiveTracking';
+import { AlertOctagon, ShieldAlert, Navigation } from 'lucide-react';
 
 export default function EmergencySOS() {
-  const { data, isLoading } = useGetActiveEmergencies();
-  const createEmergency = useCreateEmergency();
-  const { toast } = useToast();
-  const [open, setOpen] = useState(false);
+  const { triggerEmergencySOS } = useFormatEngine();
+  const { coordinates, trackingStatus } = useLiveTracking();
+  const [selectedGroup, setSelectedGroup] = useState<'A+' | 'B+' | 'O+' | 'AB+' | 'Rare (Bombay Phenotype)'>('O+');
+  const [district, setDistrict] = useState('Haryana HQ');
+  const [sosTriggered, setSosTriggered] = useState(false);
 
-  const [formData, setFormData] = useState({
-    patientName: '',
-    bloodGroup: '',
-    unitsRequired: 1,
-    hospitalId: 1, // Demo value
-    contactNumber: '',
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createEmergency.mutate({
-      data: formData as any
-    }, {
-      onSuccess: () => {
-        toast({ title: 'SOS Broadcasted', description: 'Emergency grid activated.', variant: 'destructive' });
-        setOpen(false);
-      }
-    });
+  const handleSOS = () => {
+    triggerEmergencySOS(district, selectedGroup);
+    setSosTriggered(true);
+    setTimeout(() => setSosTriggered(false), 3000);
   };
 
-  const emergencies = data?.emergencies || [
-    { id: 1, sosCode: 'SOS-8891', patientName: 'Rahul T', bloodGroup: 'O-', unitsRequired: 3, status: 'ACTIVE', hospitalName: 'AIIMS Trauma Center', contactNumber: '+91 9876543210', createdAt: new Date().toISOString() },
-    { id: 2, sosCode: 'SOS-8892', patientName: 'Priya K', bloodGroup: 'AB+', unitsRequired: 5, status: 'DISPATCHED', hospitalName: 'KEM Hospital', ambulanceNumber: 'MH-01-AB-1234', createdAt: new Date(Date.now() - 3600000).toISOString() },
-    { id: 3, sosCode: 'SOS-8893', patientName: 'Unknown (Accident)', bloodGroup: 'O+', unitsRequired: 10, status: 'ACTIVE', hospitalName: 'Apollo Main', contactNumber: 'Police ER', createdAt: new Date(Date.now() - 1800000).toISOString() },
-  ];
-
   return (
-    <AppLayout>
-      <div className="flex flex-col gap-6">
-        {/* Header Action */}
-        <div className="glass-panel border-destructive p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden glow-border shadow-[0_0_30px_rgba(255,59,59,0.1)]">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-destructive/10 rounded-full blur-[100px] pointer-events-none"></div>
-          
-          <div className="flex items-center gap-6 relative z-10">
-            <div className="w-20 h-20 rounded-full bg-destructive/20 border border-destructive/50 flex items-center justify-center critical-pulse">
-              <ShieldAlert className="w-10 h-10 text-destructive" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black text-destructive glow-text-critical tracking-wider">EMERGENCY SOS GRID</h1>
-              <p className="text-muted-foreground font-mono mt-2">National Rapid Response Protocol Activated</p>
-            </div>
+    <div className="min-h-screen bg-[#050B18] text-white p-6 flex items-center justify-center">
+      <div className="w-full max-w-xl bg-[#0B1329] border-2 border-red-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/10 rounded-full blur-xl pointer-events-none" />
+        
+        <div className="text-center mb-6">
+          <div className="inline-flex p-3 bg-red-950/60 rounded-full border border-red-500/40 mb-3 animate-pulse">
+            <AlertOctagon className="w-8 h-8 text-red-500" />
           </div>
-
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="h-16 px-12 bg-destructive hover:bg-destructive/80 text-white font-black text-xl tracking-widest shadow-[0_0_20px_rgba(255,59,59,0.5)] critical-pulse rounded-xl border border-white/20">
-                INITIATE SOS
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] glass-panel border-destructive/50 bg-[#050B18]/95 backdrop-blur-xl">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-black text-destructive glow-text-critical flex items-center gap-2">
-                  <AlertTriangle /> EMERGENCY PROTOCOL
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4 font-mono">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs text-muted-foreground uppercase">Patient Name</label>
-                    <Input className="bg-black/50 border-primary/30" required value={formData.patientName} onChange={e => setFormData({...formData, patientName: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs text-muted-foreground uppercase">Contact Number</label>
-                    <Input className="bg-black/50 border-primary/30" required value={formData.contactNumber} onChange={e => setFormData({...formData, contactNumber: e.target.value})} />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs text-muted-foreground uppercase">Blood Group</label>
-                    <Select onValueChange={(val) => setFormData({...formData, bloodGroup: val})}>
-                      <SelectTrigger className="bg-black/50 border-primary/30 text-primary font-bold">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#0D1528] border-primary/30 text-primary">
-                        {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => (
-                          <SelectItem key={bg} value={bg}>{bg}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs text-muted-foreground uppercase">Units Required</label>
-                    <Input type="number" min="1" className="bg-black/50 border-primary/30 text-primary font-bold" required value={formData.unitsRequired} onChange={e => setFormData({...formData, unitsRequired: parseInt(e.target.value)})} />
-                  </div>
-                </div>
-                <Button type="submit" disabled={createEmergency.isPending} className="w-full h-14 bg-destructive hover:bg-destructive/80 text-white font-black tracking-widest text-lg mt-4">
-                  {createEmergency.isPending ? 'BROADCASTING...' : 'BROADCAST SOS'}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <h1 className="text-xl font-black text-red-500 uppercase tracking-widest">CRITICAL SOS INITIATION PANEL</h1>
+          <p className="text-xs text-slate-400 mt-1">गोल्डन ऑवर में जीवन रक्षा के लिए राष्ट्रीय रक्त ग्रिड को तुरंत अलर्ट भेजें</p>
         </div>
 
-        {/* Active List */}
-        <div>
-          <h2 className="text-sm font-mono tracking-widest text-primary mb-4 flex items-center gap-2">
-            <Activity className="w-4 h-4" /> LIVE EMERGENCY FEED
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {emergencies.map((em) => (
-              <div key={em.id} className="glass-panel rounded-xl border border-border p-0 overflow-hidden group hover:border-primary/50 transition-colors">
-                <div className={`h-2 w-full ${em.status === 'ACTIVE' ? 'bg-destructive shadow-[0_0_10px_#FF3B3B]' : 'bg-secondary'} transition-all`} />
-                
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <span className="text-xs font-mono text-muted-foreground block mb-1">ID: {em.sosCode}</span>
-                      <h3 className="font-bold text-lg">{em.patientName}</h3>
-                    </div>
-                    <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-black text-xl ${em.status === 'ACTIVE' ? 'border-destructive text-destructive glow-text-critical bg-destructive/10' : 'border-secondary text-secondary bg-secondary/10'}`}>
-                      {em.bloodGroup}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 font-mono text-sm text-muted-foreground mb-6">
-                    <div className="flex items-center gap-3">
-                      <Droplet className="w-4 h-4 text-primary" />
-                      <span className="text-foreground">{em.unitsRequired} Units Required</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Hospital className="w-4 h-4 text-primary" />
-                      <span className="text-foreground truncate">{em.hospitalName}</span>
-                    </div>
-                    {em.ambulanceNumber ? (
-                      <div className="flex items-center gap-3 text-secondary">
-                        <Ambulance className="w-4 h-4" />
-                        <span>En route: {em.ambulanceNumber}</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3 text-destructive">
-                        <Clock className="w-4 h-4" />
-                        <span className="glow-text-critical">Awaiting Dispatch</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <Link href={`/emergency/${em.id}`} className="block">
-                    <Button variant="outline" className="w-full bg-primary/10 border-primary/30 text-primary hover:bg-primary hover:text-white font-mono tracking-widest uppercase transition-all">
-                      TRACK UNIT
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ))}
+        {/* लाइव जीपीएस कोऑर्डिनेट्स सिंक विजेट */}
+        <div className="bg-[#111A30] border border-[#1E293B] p-3 rounded-xl mb-5 flex justify-between items-center text-xs">
+          <div className="flex items-center gap-2 text-slate-400">
+            <Navigation className="w-4 h-4 text-[#009DFF]" />
+            <span>जीपीएस स्थिति: {trackingStatus === 'ACTIVE' ? 'कनेक्टेड' : 'सिंक हो रहा है...'}</span>
           </div>
+          <span className="font-mono text-emerald-400 font-bold">
+            {coordinates ? `${coordinates.latitude.toFixed(4)}° N, ${coordinates.longitude.toFixed(4)}° E` : 'खोज रहे हैं...'}
+          </span>
         </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">रक्त समूह का चयन करें (Required Blood Group)</label>
+            <select 
+              value={selectedGroup}
+              onChange={(e: any) => setSelectedGroup(e.target.value)}
+              className="w-full bg-[#0F172A] border border-[#1E293B] focus:border-red-500 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none transition-colors"
+            >
+              <option value="O+">O+ (यूनिवर्सल)</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+              <option value="AB+">AB+</option>
+              <option value="Rare (Bombay Phenotype)">Rare (बॉम्बे फेनोटाइप)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">अस्पताल का जिला/स्थान</label>
+            <input 
+              type="text" 
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              placeholder="उदाहरण के लिए: Ambala, Haryana"
+              className="w-full bg-[#0F172A] border border-[#1E293B] focus:border-red-500 rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
+            />
+          </div>
+
+          <button 
+            onClick={handleSOS}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl mt-4 tracking-widest uppercase transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+          >
+            <ShieldAlert className="w-5 h-5" /> 
+            {sosTriggered ? 'अलर्ट राष्ट्रीय ग्रिड पर भेज दिया गया!' : 'नेशनल ग्रider को SOS भेजें'}
+          </button>
+        </div>
+
+        <p className="text-[10px] text-center text-slate-500 mt-4">
+          सुरक्षा चेतावनी: इस बटन को दबाते ही एआई एल्गोरिथम 50 किमी के दायरे में मौजूद सभी योग्य डोनर्स को रीयल-टाइम आपातकालीन संदेश भेज देता है।
+        </p>
       </div>
-    </AppLayout>
+    </div>
   );
 }

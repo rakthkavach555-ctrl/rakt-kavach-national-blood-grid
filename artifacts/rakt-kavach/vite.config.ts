@@ -2,92 +2,43 @@ import path from 'path';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
-
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
-const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    'PORT environment variable is required but was not provided.',
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    'BASE_PATH environment variable is required but was not provided.',
-  );
-}
-
 export default defineConfig({
-  base: basePath,
+  // यह गिठब पेजेस और फोल्डर के अंदर के पाथ को सुरक्षित करता है
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
-    runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== 'production' &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import('@replit/vite-plugin-cartographer').then((m) =>
-            m.cartographer({
-              root: path.resolve(import.meta.dirname, '..'),
-            }),
-          ),
-          await import('@replit/vite-plugin-dev-banner').then((m) =>
-            m.devBanner(),
-          ),
-        ]
-      : []),
+    runtimeErrorOverlay()
   ],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, 'src'),
-      '@assets': path.resolve(
-        import.meta.dirname,
-        '..',
-        '..',
-        'attached_assets',
-      ),
     },
-    dedupe: ['react', 'react-dom'],
   },
-  root: path.resolve(import.meta.dirname),
   build: {
-    outDir: path.resolve(import.meta.dirname, 'dist/public'),
+    // यह फाइनल आउटपुट को बिल्कुल सही जगह पर निकालेगा
+    outDir: path.resolve(import.meta.dirname, 'dist'),
     emptyOutDir: true,
+    sourcemap: false,
     rollupOptions: {
+      // 🌟 यह रीपिट को सीधे इस फोल्डर के अंदर मौजूद index.html से कनेक्ट कर देगा
+      input: {
+        main: path.resolve(import.meta.dirname, 'index.html'),
+      },
       output: {
         manualChunks: {
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-motion': ['framer-motion'],
-          'vendor-charts': ['recharts'],
-          'vendor-map': ['leaflet', 'react-leaflet'],
-          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-tooltip', '@radix-ui/react-toast'],
+          vendor: ['react', 'react-dom', 'wouter', '@tanstack/react-query'],
         },
       },
     },
   },
   server: {
-    port,
+    host: '0.0.0.0',
+    port: 3000,
     strictPort: true,
-    host: '0.0.0.0',
-    allowedHosts: true,
-    fs: {
-      strict: true,
-    },
-  },
-  preview: {
-    port,
-    host: '0.0.0.0',
-    allowedHosts: true,
-  },
+    // 🌟 सुरक्षा ब्लॉकेज हटाने का नियम यहाँ व्यवस्थित कर दिया गया है
+    allowedHosts: 'all'
+  }
 });
