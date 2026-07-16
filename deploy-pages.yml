@@ -1,4 +1,10 @@
-name: Deploy Rakt Kavach to GitHub Pages
+# =========================================================================
+# 🛡️ राष्ट्रीय सुरक्षा ग्रिड 'रक्त कवच' - गिटहब रोबोट को कड़ा प्रशासनिक निर्देश प्रॉम्प्ट
+# डेवलपर: स्मार्ट स्टार सॉल्यूशंस | संस्थापक: नवदीप कुमार
+# नियम: इधर-उधर भटकना बंद करो, सीधे सब-फ़ोल्डर के dist इंजन को लाइव पब्लिश करो!
+# =========================================================================
+
+name: Deploy Rakt Kavach Grid
 
 on:
   push:
@@ -18,32 +24,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Sovereign Source Checkout
+      - name: 🔥 [निर्देश 1] - बिना किसी देरी के सॉवरेन कोडबेस को सीधे एक्सट्रैक्ट करो
         uses: actions/checkout@v4
 
-      - name: Initialize Core Node.js Environment
+      - name: 🔥 [निर्देश 2] - नोड एनवायरनमेंट सेट करो और पुराना कचरा साफ़ रखो
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'npm'
-          # मुख्य सब-फोल्डर के अंदर के पैकेज को कैशे लॉक करना
-          cache-dependency-path: 'artifacts/rakt-kavach/package-lock.json'
 
-      - name: Clean Install National Dependencies Matrix
-        run: npm ci
-        working-directory: artifacts/rakt-kavach
+      - name: 🔥 [निर्देश 3] - जबरन मुख्य फोल्डर के अंदर प्रवेश करो और डिपेंडेंसी इंस्टॉल करो
+        run: |
+          cd artifacts/rakt-kavach
+          npm install --no-audit --no-fund
 
-      - name: Build Secure Production Bundle
-        run: npm run build
-        working-directory: artifacts/rakt-kavach
+      - name: 🔥 [निर्देश 4] - फाइनल कंपाइलेशन रन करो और 'dist' फोल्डर तैयार करो
+        run: |
+          cd artifacts/rakt-kavach
+          npm run build
 
-      - name: Configure GitHub Pages Context
+      - name: 🔥 [निर्देश 5] - गिटहब पेजेस के रूट गेटवे को सक्रिय करो
         uses: actions/configure-pages@v4
 
-      - name: Upload Clean Build Artifact
+      - name: 🔥 [निर्देश 6] - सीधे असली dist फोल्डर का पाथ इंटरनेट पर चढ़ाओ!
         uses: actions/upload-pages-artifact@v3
         with:
-          # 🌟 यह आपके मुख्य फोल्डर के अंदर बने फाइनल dist फोल्डर को सीधे एक्सट्रैक्ट कर लेगा
+          # गिटहब के सुपर-कंप्यूटर को कड़ा निर्देश: बाहरी लॉबी छोड़कर सीधे इस तिजोरी का ताला खोलो!
           path: './artifacts/rakt-kavach/dist'
 
   deploy:
@@ -53,6 +58,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Execute Live Push to National Blood Grid
+      - name: 🚀 [अंतिम लॉन्च] - रक्त कवच नेशनल कमांड सेंटर को डोमेन पर 100% लाइव करो
         id: deployment
         uses: actions/deploy-pages@v4
