@@ -26,12 +26,16 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
+          # मुख्य सब-फोल्डर के अंदर के पैकेज को कैशे लॉक करना
+          cache-dependency-path: 'artifacts/rakt-kavach/package-lock.json'
 
       - name: Clean Install National Dependencies Matrix
         run: npm ci
+        working-directory: artifacts/rakt-kavach
 
       - name: Build Secure Production Bundle
         run: npm run build
+        working-directory: artifacts/rakt-kavach
 
       - name: Configure GitHub Pages Context
         uses: actions/configure-pages@v4
@@ -39,7 +43,8 @@ jobs:
       - name: Upload Clean Build Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          # 🌟 यह आपके मुख्य फोल्डर के अंदर बने फाइनल dist फोल्डर को सीधे एक्सट्रैक्ट कर लेगा
+          path: './artifacts/rakt-kavach/dist'
 
   deploy:
     needs: build
