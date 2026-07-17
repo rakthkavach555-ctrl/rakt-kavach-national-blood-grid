@@ -1,25 +1,31 @@
 services:
-  # 1. बैकएंड सर्विस (यह आपके डेटाबेस और सर्वर को 10000 पोर्ट पर चलाएगी)
+  # 1. बैकएंड सर्वर (यह सीधे 'db' फोल्डर के अंदर से रन होगा)
   - type: web
     name: rakt-kavach-backend
     env: node
     plan: free
-    buildCommand: npm install --legacy-peer-deps
-    startCommand: node index.js || npm start
+    rootDirectory: db # रेंडर को सीधे बैकएंड फोल्डर के अंदर भेजेगा
+    buildCommand: npm install -g pnpm && pnpm install
+    startCommand: node index.js || pnpm start || node server.js
     envVars:
       - key: PORT
         value: "10000"
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rakt-kavach-db
+          property: connectionString
 
-  # 2. फ्रंटएंड सर्विस (यह आपकी वेबसाइट का मुख्य चेहरा/UI लाइव करेगी)
-  - type: web
+  # 2. फ्रंटएंड वेबसाइट (इसे 'Static Site' बना दिया है ताकि यह सुपरफास्ट चले)
+  - type: static
     name: rakt-kavach-frontend
-    env: node
     plan: free
-    buildCommand: npm install --legacy-peer-deps && npm run build
-    startCommand: npm run preview -- --port 10000 --host
-    publishPath: dist
-    envVars:
-      - key: PORT
-        value: "10000"
+    buildCommand: npm install -g pnpm && pnpm install && pnpm run build
+    publishPath: artifacts/rakt-kavach/dist # आपकी vite.config.ts के अनुसार सही पाथ
+
+# 3. रेंडर पर ऑटोमैटिक PostgreSQL डेटाबेस
+databases:
+  - name: rakt-kavach-db
+    plan: free
+    postgresVersion: "16"
