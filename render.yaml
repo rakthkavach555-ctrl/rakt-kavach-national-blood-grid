@@ -1,0 +1,25 @@
+services:
+  # 1. बैकएंड सर्विस (यह आपके डेटाबेस और सर्वर को 10000 पोर्ट पर चलाएगी)
+  - type: web
+    name: rakt-kavach-backend
+    env: node
+    plan: free
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: node index.js || npm start
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: NODE_ENV
+        value: production
+
+  # 2. फ्रंटएंड सर्विस (यह आपकी वेबसाइट का मुख्य चेहरा/UI लाइव करेगी)
+  - type: web
+    name: rakt-kavach-frontend
+    env: node
+    plan: free
+    buildCommand: npm install --legacy-peer-deps && npm run build
+    startCommand: npm run preview -- --port 10000 --host
+    publishPath: dist
+    envVars:
+      - key: PORT
+        value: "10000"
