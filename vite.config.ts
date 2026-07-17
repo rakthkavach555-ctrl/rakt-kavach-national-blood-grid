@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  // यह जादुई नियम डोमेन को सीधे आपके असली सब-फ़ोल्डर से सिंक कर देगा
   base: './',
   plugins: [
     react(),
@@ -18,5 +17,10 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'artifacts/rakt-kavach/dist'),
     emptyOutDir: true,
+  },
+  preview: {
+    port: 10000,
+    host: '0.0.0.0',
+    strictPort: true
   }
 });
