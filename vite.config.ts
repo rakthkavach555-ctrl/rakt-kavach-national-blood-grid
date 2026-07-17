@@ -7,7 +7,7 @@ export default defineConfig({
   base: './',
   plugins: [
     react(),
-    tailwindcss()
+    tailwindcss(),
   ],
   resolve: {
     alias: {
@@ -21,6 +21,7 @@ export default defineConfig({
   preview: {
     port: 10000,
     host: '0.0.0.0',
-    strictPort: true
+    strictPort: true,
+    allowedHosts: true, // यह आपकी समस्या की असली चाबी है!
   }
 });
