@@ -17,11 +17,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'artifacts/rakt-kavach/dist'),
     emptyOutDir: true,
+    // यह नया हिस्सा उस 'manualChunks' वाले एरर को ठीक करने के लिए है
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   },
   preview: {
     port: 10000,
     host: '0.0.0.0',
     strictPort: true,
-    allowedHosts: true, // यह आपकी समस्या की असली चाबी है!
+    allowedHosts: true,
   }
 });
