@@ -1,7 +1,11 @@
-import path from 'path';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'vite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// __dirname को सुरक्षित तरीके से परिभाषित करना
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   base: './',
@@ -11,24 +15,27 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // इसे सीधा 'src' पर पॉइंट करें
-      '@': path.resolve(import.meta.dirname, './src'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   build: {
-    // इसे सीधा 'dist' फोल्डर पर रखें
     outDir: 'dist',
     emptyOutDir: true,
+    // रोलअप सेटिंग्स को सरल रखा गया है ताकि कोई एरर न आए
     rollupOptions: {
       output: {
-        manualChunks: undefined
-      }
-    }
+        manualChunks: undefined,
+      },
+    },
+  },
+  server: {
+    port: 10000,
+    host: '0.0.0.0',
+    strictPort: true,
   },
   preview: {
     port: 10000,
     host: '0.0.0.0',
     strictPort: true,
-    allowedHosts: true,
   }
 });
