@@ -11,13 +11,14 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(import.meta.dirname, 'artifacts/rakt-kavach/src'),
+      // इसे सीधा 'src' पर पॉइंट करें
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   build: {
-    outDir: path.resolve(import.meta.dirname, 'artifacts/rakt-kavach/dist'),
+    // इसे सीधा 'dist' फोल्डर पर रखें
+    outDir: 'dist',
     emptyOutDir: true,
-    // यह नया हिस्सा उस 'manualChunks' वाले एरर को ठीक करने के लिए है
     rollupOptions: {
       output: {
         manualChunks: undefined
